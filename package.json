@@ -1,0 +1,37 @@
+{
+  "name": "@levex/levexx",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": "^24.21.0",
+    "npm": "^11.19.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test:unit": "vitest -c vitest.config.ts --run --testPathPattern=tests/unit",
+    "test:integration": "vitest -c vitest.config.ts --run --testPathPattern=tests/integration --testTimeout=20000",
+    "test": "npm run test:unit",
+    "build": "tsc -p tsconfig.build.json",
+    "start:api": "node -r ts-node/register apps/api/src/index.ts",
+    "start:worker": "node -r ts-node/register apps/worker/src/index.ts",
+    "db:migrate": "node-pg-migrate up -m packages/infrastructure/database/migrations",
+    "db:migrate:down": "node-pg-migrate down -m packages/infrastructure/database/migrations",
+    "ci": "npm ci && npm run format:check && npm run lint && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "ts-node": "^10.0.0",
+    "node-pg-migrate": "^7.0.0"
+  }
+}
