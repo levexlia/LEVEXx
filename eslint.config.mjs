@@ -1,23 +1,22 @@
-// eslint.config.mjs
-import { FlatCompat } from '@eslint/eslintrc';
-const compat = new FlatCompat();
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-export default [
-  // base recommended rules
-  ...compat.extend('eslint:recommended'),
-  ...compat.extend('plugin:@typescript-eslint/recommended'),
+export default tseslint.config(
   {
-    files: ['**/*.ts'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module'
-    },
+    ignores: ["node_modules/**", "dist/**"],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.ts"],
     rules: {
-      // project-level adjustments can be added here
-      'no-console': 'off'
-    }
+      "no-console": "off",
+    },
   },
   {
-    ignores: ['node_modules/**', 'dist/**']
+    files: ["**/*.cjs"],
+    languageOptions: {
+      sourceType: "commonjs",
+    },
   }
-];
+);

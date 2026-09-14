@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_DB: levex
+      POSTGRES_USER: levex
+      POSTGRES_PASSWORD: levex_local
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U levex -d levex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - levex_postgres_data:/var/lib/postgresql
+
+volumes:
+  levex_postgres_data:
