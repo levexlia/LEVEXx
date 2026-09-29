@@ -65,3 +65,20 @@ introduced into the critical transaction.
 
 Acceptance requires architecture/security review of the concrete implementation
 and integration evidence. This proposal alone does not mark those gates passed.
+
+## Concrete v0 candidate
+
+`feat/kernel-persistence-v0` implements the candidate without changing this
+proposal to accepted. Relational records and current projection are stored
+alongside version-1 immutable command receipts with historical responses.
+Repository loading re-applies deterministic commands for integrity verification
+and compares all historical results, current record tables, audit and outbox.
+Events are not the restoration source. This bounded full-history validation
+has explicit storage/loading costs; receipt interpretation and retention cannot
+change silently. See the adapter README and persistence verification report.
+
+The candidate uses READ COMMITTED with session FOR SHARE, subject consent
+FOR SHARE, then attempt FOR UPDATE. Administrative revocation paths must follow
+the same order when locking multiple rows. Catalog/attempt/policy provisioning
+is test-only at this stage; production authorization and API exposure remain a
+separate gate.

@@ -31,16 +31,19 @@ Each successful command increments the aggregate version. Idempotency keys are s
 
 The published rubric, artifact version and finalized revision are retained. Amendments create another revision after non-mastered/partial assessments. MASTERED is terminal in this v0 aggregate; revocation/downgrade workflows require an explicit policy and implementation. Optional criteria never compensate for mandatory failures.
 
-## Boundary before application/persistence integration
+## Persistence and trust boundary
 
 - This in-memory object is not a database transaction, durable idempotency store, authentication system or security sandbox.
 - An application adapter must authenticate/authorize and load current policy before every command, including retries, with authoritative mentor assignment and consent. Role/online/session flags from a client are never authoritative.
-- PostgreSQL must make attempt uniqueness, receipts, expected versions, finalized revision/evidence history, mastery, progression, structured audit and outbox atomic, with RLS and constrained runtime roles. No business-rule computation belongs in SQL.
-- The mutable `QuestAttempt` must be private to a single transaction. It changes memory before database commit: after rollback or an uncertain commit outcome, discard it and its receipts, then reload authoritative state. Never reuse it from an application cache. A validated repository hydration contract is required before persistence integration; no such loader exists in v0.
+- The PostgreSQL adapter in `packages/infrastructure/database/kernel` stores receipts, expected versions, history, audit and outbox in one transaction. Domain TypeScript still computes every business outcome; SQL enforces relationships and write protection.
+- The mutable `QuestAttempt` is private to a single transaction. It changes memory before database commit: after any outcome, discard it and reload authoritative state for the next request. Never cache it.
+- `QuestAttempt.restore` is for the server repository only. It validates the ordered durable receipts by recomputing their transitions, compares every historical result, and compares the final state with separately loaded relational records. It does not accept untrusted request-body state or establish the authenticity of the repository. Fresh policy is checked for the new command/retry; historical commands are integrity-checked, not reauthorized using invented old consent.
 - Event descriptions are returned to server code. Do not publish them before database commit; write them into a transactional outbox. The current API exposes only `/health` and cannot commit domain mutations.
-- Separate processes or reconstructed attempts are not protected by this object's receipts. Prove locking/CAS, rollback, cross-user isolation and concurrent duplicate requests with database integration tests before exposing endpoints.
+- This object alone does not protect separate processes. Durable replay and concurrent writes require the PostgreSQL application adapter, constrained runtime role and real integration tests.
 - Real file authenticity, malicious-file detection, identity creation, global evidence reuse, skill aggregation, four-quest Pilot progression and correction/revocation after mastery remain outside this slice.
 
 Implemented/tested domain behavior is distinct from production verification or product acceptance. See `docs/architecture/kernel-v0-plan.md` and the evidence report.
 
 Engineering self-review and the proposed persistence gate are in `docs/verification/kernel-v0-review.md` and `docs/architecture/kernel-v0-persistence-plan.md`.
+
+The current adapter contract and its limits are in `packages/infrastructure/database/kernel/README.md`. Receipt schema/normalization version 1 uses ordinal string ordering, not ambient locale. No persisted version-1 receipts existed before this persistence slice.

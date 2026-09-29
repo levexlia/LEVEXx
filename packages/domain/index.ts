@@ -17,3 +17,4 @@ export type { EvaluationRevision } from "./evaluations/evaluation";
 export type { Evidence } from "./evidence/evidence";
 export type { MasteryRecord, MasteryStatus } from "./mastery/mastery";
 export type { ProgressionEvent } from "./progression/progression";
+export type { CommandReceipt } from "./quests/receipts";

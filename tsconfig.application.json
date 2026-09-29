@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.domain.json",
+  "include": ["packages/domain/**/*.ts", "packages/application/**/*.ts"]
+}

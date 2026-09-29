@@ -15,7 +15,7 @@ export function transition(
   state: KernelSnapshot,
   quest: QuestDefinition,
   command: KernelCommand,
-  context: MutationContext
+  context: Pick<MutationContext, "principal" | "now">
 ): CommandResult {
   const next = { ...state, version: state.version + 1, changedAt: context.now };
   const events: DomainEvent[] = [];

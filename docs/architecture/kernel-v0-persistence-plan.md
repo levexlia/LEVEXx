@@ -1,7 +1,9 @@
 # Next slice: application and PostgreSQL persistence
 
-Status: implementation proposal. No persistence code or migration is added by
-the Kernel v0 review patch. Accepted ADR-001/002/004/005/006/007 remain binding.
+Status: original implementation plan, now implemented as a candidate on
+`feat/kernel-persistence-v0`; actual verification is recorded separately in
+`docs/verification/kernel-persistence-v0.md`. The earlier Kernel v0 review patch
+itself added no storage. Accepted ADR-001/002/004/005/006/007 remain binding.
 
 ## Objective
 
