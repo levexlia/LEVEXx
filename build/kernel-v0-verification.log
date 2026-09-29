@@ -1,0 +1,54 @@
+$ npm run format:check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+$ npm run lint
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 lint
+> eslint .
+
+
+$ npm run typecheck
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 typecheck
+> tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.domain.json && tsc -p tsconfig.tests.json
+
+
+$ npm run architecture:check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 architecture:check
+> node scripts/verify-architecture.mjs
+
+
+$ npm run test:unit
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 test:unit
+> vitest run tests/unit
+
+
+ RUN  v5.0.0 /workspace/scratch/23c2235b0602/LEVEXx
+
+
+ Test Files  4 passed (4)
+      Tests  97 passed (97)
+   Start at  14:26:36
+   Duration  4.66s (tests 92%, transform 5%, import 3%)
+
+
+$ npm run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @levex/levexx@0.0.0 build
+> tsc -p tsconfig.build.json
+
+
+$ git diff --check
