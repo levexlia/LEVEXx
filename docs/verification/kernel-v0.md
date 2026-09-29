@@ -3,6 +3,11 @@
 Date: 2026-09-29. Base: `702a320a6981b7b2fb541de1e1e3925758541ac2`.
 Branch: `feat/kernel-v0`.
 
+Follow-up (2026-09-30): `docs/verification/kernel-v0-review.md` records two
+reproduced/fixed idempotency defects and the expanded 99-test suite. The initial
+implementation evidence below remains historical. Current CI results are linked
+from PR #1; the persistence design is a proposal, not implemented storage.
+
 **IMPLEMENTED / TESTED:** pure server domain kernel and executable architecture constraints.
 **VERIFIED LOCALLY:** the in-memory business workflow and the checks below.
 **ACCEPTED:** pending review. No production/pilot/end-to-end readiness claim.

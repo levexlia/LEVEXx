@@ -324,6 +324,72 @@ describe("policy, actor and client-state boundaries", () => {
 });
 
 describe("duplicate, stale and invalid commands", () => {
+  it("isolates participant and mentor receipt namespaces for the same key", () => {
+    const kernel = attempt();
+    const accept: KernelCommand = { type: "accept-quest" };
+    const participantMetadata = {
+      idempotencyKey: "request-1",
+      expectedVersion: 0,
+    };
+    kernel.execute(accept, participantMetadata, context());
+    run(kernel, {
+      type: "submit-artifact",
+      contentHash: HASH,
+      objectVersion: "object.v1",
+    });
+    const evaluate: KernelCommand = {
+      type: "draft-evaluation",
+      artifactVersionId: "attempt-1:artifact:1",
+      assessments: scores(),
+    };
+    const mentorMetadata = { idempotencyKey: "request-1", expectedVersion: 2 };
+    const mentorResult = kernel.execute(
+      evaluate,
+      mentorMetadata,
+      context("mentor")
+    );
+    expect(mentorResult.replayed).toBe(false);
+    expect(kernel.snapshot.version).toBe(3);
+    expect(
+      kernel.execute(accept, participantMetadata, context())
+    ).toMatchObject({ replayed: true, events: [], snapshot: { version: 1 } });
+    expect(
+      kernel.execute(evaluate, mentorMetadata, context("mentor"))
+    ).toMatchObject({ replayed: true, events: [], snapshot: { version: 3 } });
+    expect(() =>
+      kernel.execute(
+        { ...evaluate, assessments: scores("PARTIAL") },
+        mentorMetadata,
+        context("mentor")
+      )
+    ).toThrow("IDEMPOTENCY_CONFLICT");
+    expect(finalize(kernel).snapshot.progression).toHaveLength(1);
+  });
+
+  it("keeps retry identity stable when server principal metadata changes", () => {
+    const kernel = submitted();
+    draft(kernel);
+    const command: KernelCommand = {
+      type: "finalize-evaluation",
+      evaluationRevisionId: "attempt-1:evaluation:1",
+    };
+    const metadata = { idempotencyKey: "finalize", expectedVersion: 3 };
+    const trusted = context("mentor");
+    const firstContext = {
+      ...trusted,
+      principal: { ...trusted.principal, sessionReference: "session-a" },
+    };
+    const refreshedContext = {
+      ...trusted,
+      principal: { ...trusted.principal, sessionReference: "session-b" },
+    };
+    kernel.execute(command, metadata, firstContext);
+    const retry = kernel.execute(command, metadata, refreshedContext);
+    expect(retry.replayed).toBe(true);
+    expect(retry.events).toHaveLength(0);
+    expect(kernel.snapshot.progression).toHaveLength(1);
+  });
+
   it("replays every command without emitting events or duplicating records", () => {
     const kernel = attempt();
     const commands: KernelCommand[] = [

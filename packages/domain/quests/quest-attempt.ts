@@ -85,12 +85,22 @@ export class QuestAttempt {
         metadata.expectedVersion >= 0,
       "INVALID_EXPECTED_VERSION"
     );
+    // Stable identity only: request/session metadata must not reserve another
+    // principal's keys or change the identity of a retry after reauthentication.
+    const principal = {
+      actorId: context.principal.actorId,
+      role: context.principal.role,
+    };
+    const receiptKey = canonical({
+      principal,
+      idempotencyKey: metadata.idempotencyKey,
+    });
     const fingerprint = canonical({
       command,
       expectedVersion: metadata.expectedVersion,
-      principal: context.principal,
+      principal,
     });
-    const receipt = this.#receipts.get(metadata.idempotencyKey);
+    const receipt = this.#receipts.get(receiptKey);
     if (receipt) {
       ensure(receipt.fingerprint === fingerprint, "IDEMPOTENCY_CONFLICT");
       // Historical response; never rewind current state or republish events.
@@ -105,7 +115,7 @@ export class QuestAttempt {
     const result = transition(this.#state, this.#quest, command, context);
     // All domain validation finishes before a single state replacement.
     this.#state = result.snapshot;
-    this.#receipts.set(metadata.idempotencyKey, { fingerprint, result });
+    this.#receipts.set(receiptKey, { fingerprint, result });
     return result;
   }
 }

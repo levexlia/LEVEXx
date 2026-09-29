@@ -1,0 +1,43 @@
+
+ RUN  v5.0.0 /workspace/scratch/23c2235b0602/LEVEXx
+
+ ❯ tests/unit/kernel.test.ts (44 tests | 2 failed | 42 skipped) 18ms
+   ❯ duplicate, stale and invalid commands (22)
+     × isolates participant and mentor receipt namespaces for the same key 14ms
+     × keeps retry identity stable when server principal metadata changes 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/kernel.test.ts > duplicate, stale and invalid commands > isolates participant and mentor receipt namespaces for the same key
+DomainError: IDEMPOTENCY_CONFLICT
+ ❯ ensure packages/domain/shared/invariants.ts:9:25
+      7|
+      8| export function ensure(condition: unknown, code: string): asserts cond…
+      9|   if (!condition) throw new DomainError(code);
+       |                         ^
+     10| }
+     11|
+ ❯ QuestAttempt.execute packages/domain/quests/quest-attempt.ts:95:7
+ ❯ tests/unit/kernel.test.ts:335:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/kernel.test.ts > duplicate, stale and invalid commands > keeps retry identity stable when server principal metadata changes
+DomainError: IDEMPOTENCY_CONFLICT
+ ❯ ensure packages/domain/shared/invariants.ts:9:25
+      7|
+      8| export function ensure(condition: unknown, code: string): asserts cond…
+      9|   if (!condition) throw new DomainError(code);
+       |                         ^
+     10| }
+     11|
+ ❯ QuestAttempt.execute packages/domain/quests/quest-attempt.ts:95:7
+ ❯ tests/unit/kernel.test.ts:353:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 42 skipped (44)
+   Start at  15:46:56
+   Duration  253ms (transform 63%, import 20%, tests 14%, worker 2%)
