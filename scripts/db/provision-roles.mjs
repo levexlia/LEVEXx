@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import {
   assertVersion,
+  canonicalMembership,
   connect,
   identifier,
   isMain,
   literal,
+  readCanonicalMemberships,
   required,
   roles,
 } from "./common.mjs";
@@ -49,20 +51,16 @@ export async function provision(client, passwords) {
         );
       }
     }
-    const memberships = (
-      await client.query(
-        `SELECT member.rolname AS member, parent.rolname AS parent
-      FROM pg_auth_members m JOIN pg_roles member ON member.oid=m.member JOIN pg_roles parent ON parent.oid=m.roleid
-      WHERE member.rolname = ANY($1)`,
-        [roles]
-      )
-    ).rows;
-    assert.ok(
-      memberships.every(
-        (r) => r.member === "migrator" && r.parent === "db_owner"
-      ),
-      "Unexpected canonical role membership"
-    );
+    const memberships = await readCanonicalMemberships(client);
+    // A fresh cluster has no membership yet. Existing grants must match exactly:
+    // do not silently repair ADMIN/INHERIT/SET drift or ignore incoming members.
+    if (memberships.length > 0) {
+      assert.deepEqual(
+        memberships,
+        [canonicalMembership],
+        "Unexpected canonical role membership"
+      );
+    }
     await client.query(
       "GRANT db_owner TO migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE"
     );

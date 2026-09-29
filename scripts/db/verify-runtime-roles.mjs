@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import {
   assertVersion,
+  canonicalMembership,
   connect,
   isMain,
+  readCanonicalMemberships,
   required,
   roles,
   tables,
@@ -30,24 +32,12 @@ export async function inspectRoles(client) {
       assert.equal(row[flag], false, `${row.rolname}.${flag}`);
     assert.equal(row.rolcanlogin, row.rolname !== "db_owner");
   }
-  const membershipRows = (
-    await client.query(
-      `SELECT member.rolname AS member, parent.rolname AS parent,
-    m.admin_option, m.inherit_option, m.set_option FROM pg_auth_members m
-    JOIN pg_roles member ON member.oid=m.member JOIN pg_roles parent ON parent.oid=m.roleid
-    WHERE member.rolname=ANY($1) ORDER BY member.rolname,parent.rolname`,
-      [roles]
-    )
-  ).rows;
-  assert.deepEqual(membershipRows, [
-    {
-      member: "migrator",
-      parent: "db_owner",
-      admin_option: false,
-      inherit_option: false,
-      set_option: true,
-    },
-  ]);
+  const membershipRows = await readCanonicalMemberships(client);
+  assert.deepEqual(
+    membershipRows,
+    [canonicalMembership],
+    "Unexpected canonical role membership"
+  );
   const schemaRows = (
     await client.query(
       "SELECT nspname, pg_get_userbyid(nspowner) AS owner FROM pg_namespace WHERE nspname IN ('levex','levex_private') ORDER BY nspname"
