@@ -68,6 +68,8 @@ export function validateAssessments(
     ids.add(assessment.criterionId);
   }
   return immutable(
-    [...assessments].sort((a, b) => a.criterionId.localeCompare(b.criterionId))
+    [...assessments].sort((a, b) =>
+      a.criterionId < b.criterionId ? -1 : a.criterionId > b.criterionId ? 1 : 0
+    )
   );
 }

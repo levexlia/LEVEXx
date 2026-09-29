@@ -29,6 +29,7 @@ for (const file of files) {
 }
 
 const domainRoot = path.join(root, "packages/domain");
+const applicationRoot = path.join(root, "packages/application");
 if (!fs.existsSync(domainRoot)) throw new Error("Missing domain kernel");
 const forbiddenGlobals = new Set([
   "process",
@@ -47,6 +48,8 @@ const forbiddenGlobals = new Set([
 ]);
 
 function verifyFile(file) {
+  const application = file.startsWith(applicationRoot + path.sep);
+  const layer = application ? "Application" : "Domain";
   const source = ts.createSourceFile(
     file,
     fs.readFileSync(file, "utf8"),
@@ -58,16 +61,22 @@ function verifyFile(file) {
   };
   const checkImport = (specifier) => {
     if (!specifier || !ts.isStringLiteral(specifier))
-      fail("Nonliteral domain import");
+      fail(`Nonliteral ${layer} import`);
     const target = path.resolve(path.dirname(file), specifier.text);
     if (
       !specifier.text.startsWith(".") ||
-      !target.startsWith(domainRoot + path.sep)
+      !(
+        target === domainRoot ||
+        target.startsWith(domainRoot + path.sep) ||
+        (application &&
+          (target === applicationRoot ||
+            target.startsWith(applicationRoot + path.sep)))
+      )
     )
-      fail(`Domain dependency forbidden: ${specifier.text}`);
+      fail(`${layer} dependency forbidden: ${specifier.text}`);
     if (!fs.existsSync(target + ".ts") && !fs.existsSync(target + "/index.ts"))
       fail(
-        `Domain import must resolve to domain TypeScript: ${specifier.text}`
+        `${layer} import must resolve to permitted TypeScript: ${specifier.text}`
       );
   };
   const visit = (node) => {
@@ -89,7 +98,7 @@ function verifyFile(file) {
     )
       checkImport(node.arguments[0]);
     if (ts.isIdentifier(node) && forbiddenGlobals.has(node.text))
-      fail(`Domain I/O/global forbidden: ${node.text}`);
+      fail(`${layer} I/O/global forbidden: ${node.text}`);
     if (
       ts.isPropertyAccessExpression(node) &&
       ((node.expression.getText(source) === "Math" &&
@@ -126,3 +135,4 @@ function walk(directory) {
 }
 
 walk(domainRoot);
+if (fs.existsSync(applicationRoot)) walk(applicationRoot);

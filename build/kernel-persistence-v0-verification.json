@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-29T22:28:32.594197+00:00",
+  "baseKernelCommit": "313b2b711e64ccf19e45d057f915e99b5994ef9d",
+  "verifiedCodeCommit": "5fac4d95f4d9eee29ace27a03ae6f6ae54c7bb73",
+  "branch": "feat/kernel-persistence-v0",
+  "scope": "server application and database adapter candidate; no public mutation endpoint or production acceptance",
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "checks": [
+    {
+      "command": "npm run format:check",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run architecture:check",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  ],
+  "unitTests": {
+    "passed": 123,
+    "files": 6
+  },
+  "databaseIntegrationLocal": "NOT RUN: no local server; user/group restrictions blocked dependency installation",
+  "remoteCI": {
+    "verifiedHead": "5fac4d95f4d9eee29ace27a03ae6f6ae54c7bb73",
+    "tree": "5774d85221a927c01af789042160970ee72b05f0",
+    "pullRequestRun": 36639684368,
+    "pushRun": 36639678691,
+    "status": "PASS",
+    "job": 109648757291,
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "postgresql": "18.6",
+    "unitTests": 123,
+    "integrationTests": {
+      "total": 35,
+      "kernel": 34,
+      "bootstrap": 1
+    },
+    "checks": [
+      "clean install",
+      "format",
+      "lint",
+      "build/domain/application/test typechecks",
+      "architecture",
+      "unit tests",
+      "migrations",
+      "integration tests",
+      "build",
+      "secret scan",
+      "dependency audit"
+    ],
+    "logExcerpt": "build/kernel-persistence-v0-ci.log",
+    "aiScan": {
+      "run": 36639685400,
+      "job": 109648765365,
+      "status": "FAIL",
+      "reason": "CAPIError: 400 The requested model is not supported; no completed independent review"
+    }
+  },
+  "independentAcceptance": "NOT PERFORMED",
+  "sources": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "26d67f16909b2dbaa0e997723cf25e23fd8a5a3a106026b9a79bfc3025608de6"
+    },
+    {
+      "path": "apps/api/src/server.ts",
+      "sha256": "5eb21729eae597e2279f0ae91f6cf0f001d0f5e57b9f2cad5a26999012856a73"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "3dadfd3f8e1a4a60bbe934ab058c555cf350961b8b46e357ee39cd53af472f5e"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "7c5fce443f40f75f83dcf425866e30a9f7d2d9fd75339b392906f47c70f08e80"
+    },
+    {
+      "path": "package.json",
+      "sha256": "5d3431007e2674425afd1c721057b50b86bc2751c1f41dbba0c8da0ca9a7cc64"
+    },
+    {
+      "path": "packages/application/index.ts",
+      "sha256": "b53863886accef5ff7a93346d5a18ee42c8fd98edfd031d6be231e5df3d69aca"
+    },
+    {
+      "path": "packages/application/kernel/execute-command.ts",
+      "sha256": "b403920315e619f03f5085f2565b43e9a25c1ac39244fe6bde339fcb8a5ec6b3"
+    },
+    {
+      "path": "packages/application/kernel/ports.ts",
+      "sha256": "cceef8618e7125c2e08a4e2d1e11005ca7415df6ca4d58e05ee06a47e2cfe1e0"
+    },
+    {
+      "path": "packages/domain/artifacts/artifact.ts",
+      "sha256": "81740aac75960302de3293c9d998cfaaa43f726e02b813e9ee5a78bb41dea5e5"
+    },
+    {
+      "path": "packages/domain/evaluations/evaluation.ts",
+      "sha256": "e98a8c9e18cf03102b502e976c6abb0a7c1584d1b22bfe39d457e3d4bd733926"
+    },
+    {
+      "path": "packages/domain/evidence/evidence.ts",
+      "sha256": "6f64f7bc28da4ff2d9c2c2048a1b34e3180c04c224b983a98a7ec11a13bb7b24"
+    },
+    {
+      "path": "packages/domain/index.ts",
+      "sha256": "8da55a0b71096ad72b77b3876f7b91c83272fd1b5f7314f946be307244397512"
+    },
+    {
+      "path": "packages/domain/mastery/mastery.ts",
+      "sha256": "1866a0159683a4242b6385bce3021133d36e5f094f10864f881d8d53837f6e2b"
+    },
+    {
+      "path": "packages/domain/progression/progression.ts",
+      "sha256": "57cf00e859b7829d0117c863d8002ea1839538049444cdaa2742b91fc31fb37c"
+    },
+    {
+      "path": "packages/domain/quests/commands.ts",
+      "sha256": "250736b084bb44e6470d2519eace817d7a645e95c14b9906dc85759a2606bd7a"
+    },
+    {
+      "path": "packages/domain/quests/first-machine.ts",
+      "sha256": "2df891cac8420ec2d32efd2241ddb8099e9ee8ed2c7cdf2f26669727d1ccff3b"
+    },
+    {
+      "path": "packages/domain/quests/quest-attempt.ts",
+      "sha256": "09c14c188fd40fd985127a66dff34f617ebd9e09c160068cb45459c799a51ce5"
+    },
+    {
+      "path": "packages/domain/quests/quest.ts",
+      "sha256": "ce9d501feb53ef7cfb7852669fa79c48232788d61bac77cb7065fd7a3ea307ad"
+    },
+    {
+      "path": "packages/domain/quests/receipts.ts",
+      "sha256": "2590ae022dcbbff55d1263e6035fc7067be92446ba8b245a9d702184f3ab7c1f"
+    },
+    {
+      "path": "packages/domain/quests/restore.ts",
+      "sha256": "f1397cb96907f7b1f964809e52d19fabcfb305b04b4d498d57e9557a603391fe"
+    },
+    {
+      "path": "packages/domain/quests/state.ts",
+      "sha256": "7328ddc585d041f6097bb525feb478cf81bc206ed2988c4c343d14f6ca1a2789"
+    },
+    {
+      "path": "packages/domain/quests/transition.ts",
+      "sha256": "74e70a7a2f9c56cbce83a46f00367fdab7c2f9afa18ec9f423b829071c2c8840"
+    },
+    {
+      "path": "packages/domain/rubrics/rubric.ts",
+      "sha256": "3b4ccd0d5ed26b42c65fa84af24f57264df6c63593a6cc8a5f1e5f8619cf3c3a"
+    },
+    {
+      "path": "packages/domain/shared/events.ts",
+      "sha256": "2738a091050e992ad6cfa98ea7be9d728476efcac0f682ff6188f11a30caf2e6"
+    },
+    {
+      "path": "packages/domain/shared/invariants.ts",
+      "sha256": "f38882d5c16b89204a7606d81b540e083b81ae0c6d53193f1ea80bd631b1a096"
+    },
+    {
+      "path": "packages/domain/shared/policy.ts",
+      "sha256": "8241fd9773dff66032aa439d14e81d460cf218f390ff2ac2cc0d788b13b8fe83"
+    },
+    {
+      "path": "packages/infrastructure/database/kernel/connection.ts",
+      "sha256": "dd52b460beebdd9146be71922a27e8cbf2496b34f235ae419ad4ada3e44c6be5"
+    },
+    {
+      "path": "packages/infrastructure/database/kernel/index.ts",
+      "sha256": "8340285ed9df2d90b83656b6f057764ec29ac38cda90387397bb127990420d4f"
+    },
+    {
+      "path": "packages/infrastructure/database/kernel/records.ts",
+      "sha256": "0dbee4fe878539539ad2aafcd0ddb5b9dc3d49e8652b52bffbd1ef5bf6830a76"
+    },
+    {
+      "path": "packages/infrastructure/database/kernel/unit-of-work.ts",
+      "sha256": "9b53e5e60bfe960a27a75d3ef605b406fd0bb0a8a4e13b1159d1b8af5f1c128d"
+    },
+    {
+      "path": "packages/infrastructure/database/migrations/1789327313237_gate0-bootstrap.cjs",
+      "sha256": "212d21417a8da1395793b9bc50bc5115bf73cd5d625a1b7eb604348beeb769cd"
+    },
+    {
+      "path": "packages/infrastructure/database/migrations/1790719200000_kernel-persistence.cjs",
+      "sha256": "02faf27d000d1b122239ca0802ef4d8de592dc9e2b8cdc2de34095ca3f58aca7"
+    },
+    {
+      "path": "scripts/verify-architecture.mjs",
+      "sha256": "00f69727c0b54a7cbb0c2ab91bf0bb2e3c9496a95fe639abe6308da2436b3f0d"
+    },
+    {
+      "path": "tests/integration/db-integration.test.ts",
+      "sha256": "b7f65b3d98fd62481c0b5ca4bd9af5254e3cb1127571d91aa907971bfe2241c1"
+    },
+    {
+      "path": "tests/integration/kernel-fixtures.ts",
+      "sha256": "549c7f0f750e3cf1e492ab2b52dac452e86559916ca3673527662850cfb8030c"
+    },
+    {
+      "path": "tests/integration/kernel-persistence.test.ts",
+      "sha256": "0f76f5d85296f6b7975f868b5382b6b49279c1572646292bad4d74cecbcca1b0"
+    },
+    {
+      "path": "tests/unit/application-command.test.ts",
+      "sha256": "140b601d52ad4e51a2422a50b1c1d27f93c1ccdb75a8e394e5e9e8c78287b51e"
+    },
+    {
+      "path": "tests/unit/architecture.test.ts",
+      "sha256": "3c162d55938e5c9e0e29c0c231409818b6d7032958008ef6a80be57794a3fb37"
+    },
+    {
+      "path": "tests/unit/health.test.ts",
+      "sha256": "b3029cb9d7fdf58f1916a7fb0cb2bac3135505018fbe11b408d5a7c10ca86456"
+    },
+    {
+      "path": "tests/unit/kernel-fixtures.ts",
+      "sha256": "5922a168d47f612f806359fb1f5c31bd9e54e9b1e9b97b3b5404c87a695caab6"
+    },
+    {
+      "path": "tests/unit/kernel-invariants.test.ts",
+      "sha256": "a65bdfe6f3c13e49c8a64c80826a6c0c44b0dfa7992784493047eca639540d60"
+    },
+    {
+      "path": "tests/unit/kernel-restore.test.ts",
+      "sha256": "ecee30f5cbb3dfcad0e6cbbb53e575bccd46bde6aa528244e17c534565541f2f"
+    },
+    {
+      "path": "tests/unit/kernel.test.ts",
+      "sha256": "f573fceeb5c847408b52bc94caefeebd35724bdc46fb12ea7dbce3d3fa275abf"
+    },
+    {
+      "path": "tsconfig.application.json",
+      "sha256": "834dc468c8429a29ba4a617366170fbf237d6d873cb9346ebbf38f6b01cf44c3"
+    },
+    {
+      "path": "tsconfig.build.json",
+      "sha256": "0d87cf20f054eda604df8f3b71dba1a57d5fcc314d3b242d49381f1e7b29859b"
+    },
+    {
+      "path": "tsconfig.domain.json",
+      "sha256": "9b453df3242c273f5da62d04439c9e316c9f263fc90cde891bdc2cc6766a90cd"
+    },
+    {
+      "path": "tsconfig.tests.json",
+      "sha256": "cc6f7e5ce5335c806959f42152b753714ce8fa9d25be912d3a133919769e75bf"
+    }
+  ],
+  "initialRun": {
+    "head": "632f8dc463cbd6620d002c6ed9951e03c6614219",
+    "run": 36639249244,
+    "status": "FAIL",
+    "reason": "Foreign-provenance test fixture hit evaluation uniqueness before the target FK; corrected fixture with strict FK assertion preserved"
+  }
+}

@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.domain.json && tsc -p tsconfig.tests.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.domain.json && tsc -p tsconfig.application.json && tsc -p tsconfig.tests.json",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test": "npm run test:unit",

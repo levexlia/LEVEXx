@@ -1,29 +1,23 @@
 import {
-  canonical,
+  DomainError,
   ensure,
-  exactKeys,
   identifier,
   immutable,
   timestamp,
 } from "../shared/invariants";
 import { authorize, type MutationContext } from "../shared/policy";
-import {
-  validateCommand,
-  type CommandMetadata,
-  type KernelCommand,
-} from "./commands";
+import { type CommandMetadata, type KernelCommand } from "./commands";
 import { defineQuest, type QuestDefinition } from "./quest";
 import type { CommandResult, KernelSnapshot } from "./state";
 import { transition } from "./transition";
+import { identifyCommand, receiptKey, type CommandReceipt } from "./receipts";
+import { validateStoredHistory } from "./restore";
 
-/** Server-only, process-local aggregate. No client-state rehydration API. */
+/** Server-only aggregate. One disposable instance per persistence transaction. */
 export class QuestAttempt {
   readonly #quest: QuestDefinition;
   #state: KernelSnapshot;
-  readonly #receipts = new Map<
-    string,
-    { fingerprint: string; result: CommandResult }
-  >();
+  readonly #receipts = new Map<string, CommandReceipt>();
 
   constructor(input: {
     readonly instanceId: string;
@@ -60,6 +54,37 @@ export class QuestAttempt {
     return this.#state;
   }
 
+  get receipts(): readonly CommandReceipt[] {
+    return immutable([...this.#receipts.values()]);
+  }
+
+  /** Repository-only loading: verify history and recompute every stored outcome. */
+  static restore(input: {
+    readonly quest: QuestDefinition;
+    readonly snapshot: KernelSnapshot;
+    readonly receipts: readonly CommandReceipt[];
+  }): QuestAttempt {
+    try {
+      const attempt = new QuestAttempt({
+        instanceId: input.snapshot.instance.id,
+        participantId: input.snapshot.instance.participantId,
+        mentorId: input.snapshot.instance.mentorId,
+        quest: input.quest,
+      });
+      attempt.#state = validateStoredHistory(
+        attempt.#quest,
+        attempt.#state,
+        input.snapshot,
+        input.receipts
+      );
+      for (const receipt of input.receipts)
+        attempt.#receipts.set(receiptKey(receipt), immutable(receipt));
+      return attempt;
+    } catch {
+      throw new DomainError("INVALID_PERSISTED_STATE");
+    }
+  }
+
   execute(
     input: KernelCommand,
     metadata: CommandMetadata,
@@ -77,32 +102,19 @@ export class QuestAttempt {
       this.#state.instance.mentorId,
       role
     );
-    const command = validateCommand(input, this.#quest);
-    exactKeys(metadata, ["idempotencyKey", "expectedVersion"]);
-    identifier(metadata.idempotencyKey);
-    ensure(
-      Number.isSafeInteger(metadata.expectedVersion) &&
-        metadata.expectedVersion >= 0,
-      "INVALID_EXPECTED_VERSION"
+    const identity = identifyCommand(
+      input,
+      metadata,
+      context.principal,
+      this.#quest
     );
-    // Stable identity only: request/session metadata must not reserve another
-    // principal's keys or change the identity of a retry after reauthentication.
-    const principal = {
-      actorId: context.principal.actorId,
-      role: context.principal.role,
-    };
-    const receiptKey = canonical({
-      principal,
-      idempotencyKey: metadata.idempotencyKey,
-    });
-    const fingerprint = canonical({
-      command,
-      expectedVersion: metadata.expectedVersion,
-      principal,
-    });
-    const receipt = this.#receipts.get(receiptKey);
+    const key = receiptKey(identity);
+    const receipt = this.#receipts.get(key);
     if (receipt) {
-      ensure(receipt.fingerprint === fingerprint, "IDEMPOTENCY_CONFLICT");
+      ensure(
+        receipt.fingerprint === identity.fingerprint,
+        "IDEMPOTENCY_CONFLICT"
+      );
       // Historical response; never rewind current state or republish events.
       return immutable({ ...receipt.result, events: [], replayed: true });
     }
@@ -112,10 +124,15 @@ export class QuestAttempt {
         timestamp(context.now) >= timestamp(this.#state.changedAt),
       "CLOCK_REGRESSION"
     );
-    const result = transition(this.#state, this.#quest, command, context);
+    const result = transition(
+      this.#state,
+      this.#quest,
+      identity.command,
+      context
+    );
     // All domain validation finishes before a single state replacement.
     this.#state = result.snapshot;
-    this.#receipts.set(receiptKey, { fingerprint, result });
+    this.#receipts.set(key, immutable({ ...identity, result }));
     return result;
   }
 }
