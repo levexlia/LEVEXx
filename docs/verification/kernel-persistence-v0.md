@@ -31,6 +31,16 @@ remains proposed; this is its concrete implementation candidate.
 Exact-head CI links and results will be recorded in the draft PR after the run.
 An older green Kernel v0 head is not evidence for this implementation.
 
+Initial remote run on `632f8dc463cbd6620d002c6ed9951e03c6614219`:
+PostgreSQL migration passed; 33 of 34 integration tests passed (including the
+existing bootstrap test). One foreign-provenance fixture reused an evaluation
+already protected by UNIQUE, so PostgreSQL rejected it with `23505` before the
+expected FK `23503`. The corrected fixture directly references an existing
+foreign artifact from a new evaluation; the assertion remains a strict FK
+failure. This is a test-fixture correction, not a relaxation of constraints.
+Revocation tests also now observe actual lock waits through `pg_blocking_pids`,
+and an additional real-time expiry test checks rollback before commit.
+
 ## Remaining limits
 
 Production identity/consent provisioning, verified uploads, mutation endpoints,

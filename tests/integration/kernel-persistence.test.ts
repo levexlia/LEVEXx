@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { Pool } from "pg";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { ExecuteKernelCommand } from "../../packages/application";
 import {
   PostgresKernelUnitOfWork,
@@ -552,25 +552,54 @@ describe("authorization, policy and RLS", () => {
     ).rejects.toMatchObject({ code: "23514" });
   });
 
-  it("rejects cross-owner provenance through relational foreign keys even for the migration owner", async () => {
+  it("rejects a foreign artifact relationship through the composite FK even for the migration owner", async () => {
     const a = await fixture(admin, runtime, 4);
     const b = await fixture(admin, runtime, 2);
     const record = (
       await admin.query(
-        "SELECT body FROM levex_kernel.evidence WHERE attempt_id = $1",
+        "SELECT body FROM levex_kernel.evaluations WHERE attempt_id = $1",
         [a.id]
       )
     ).rows[0].body;
     await expect(
-      admin.query("INSERT INTO levex_kernel.evidence(body) VALUES ($1)", [
+      admin.query("INSERT INTO levex_kernel.evaluations(body) VALUES ($1)", [
         JSON.stringify({
           ...record,
-          id: `${b.id}:invented-evidence`,
+          id: `${b.id}:evaluation:1`,
+          evaluationId: `${b.id}:evaluation`,
           participantId: b.participant.actorId,
           questInstanceId: b.id,
         }),
       ])
     ).rejects.toMatchObject({ code: "23503" });
+  });
+
+  it("rolls back writes if consent expires after domain execution but before commit", async () => {
+    const f = await fixture(admin, runtime, 3);
+    const before = await counts(admin, f.id);
+    await admin.query(
+      "UPDATE levex_kernel.subject_policy SET consent_until = clock_timestamp() + interval '2 seconds' WHERE participant_id = $1",
+      [f.participant.actorId]
+    );
+    let wroteEvidence = false;
+    const pool = intercept(runtime, async (sql, next) => {
+      const result = await next();
+      if (sql.startsWith("INSERT INTO levex_kernel.evidence")) {
+        wroteEvidence = true;
+        // Independent observer waits for real database time, without changing
+        // the shared-locked consent row or supplying a fake application clock.
+        await admin.query(
+          "SELECT pg_sleep(GREATEST(0, extract(epoch FROM (consent_until - clock_timestamp()))) + 0.02) FROM levex_kernel.subject_policy WHERE participant_id = $1",
+          [f.participant.actorId]
+        );
+      }
+      return result;
+    });
+    await expect(handler(pool, f).execute(finalInput(f))).rejects.toThrow(
+      "CONSENT_EXPIRED"
+    );
+    expect(wroteEvidence).toBe(true);
+    expect(await counts(admin, f.id)).toEqual(before);
   });
 
   it("clears pooled actor/session context after successful and failed commands", async () => {
@@ -628,7 +657,16 @@ describe("revocation serialization", () => {
           : f.id;
       await revoke.query("BEGIN");
       await revoke.query(test.sql, [target]);
-      const pool = intercept(runtime, async (sql, next) => {
+      let mutationPid = 0;
+      const tracked: ConnectionPool = {
+        connect: async () => {
+          const client = await runtime.connect();
+          mutationPid = (await client.query("SELECT pg_backend_pid() AS id"))
+            .rows[0].id;
+          return client;
+        },
+      };
+      const pool = intercept(tracked, async (sql, next) => {
         if (sql.startsWith(test.lock)) reached.resolve();
         return next();
       });
@@ -636,8 +674,18 @@ describe("revocation serialization", () => {
       const rejection = expect(pending).rejects.toThrow(test.error);
       try {
         await reached.promise;
-        await revoke.query("COMMIT");
+        await vi.waitFor(
+          async () => {
+            const blocked = await admin.query(
+              "SELECT cardinality(pg_blocking_pids($1)) > 0 AS blocked",
+              [mutationPid]
+            );
+            expect(blocked.rows[0].blocked).toBe(true);
+          },
+          { interval: 10, timeout: 2000 }
+        );
       } finally {
+        await revoke.query("COMMIT");
         revoke.release();
       }
       await rejection;
@@ -667,10 +715,28 @@ describe("revocation serialization", () => {
           : test.name === "session"
           ? f.mentor.sessionId
           : f.id;
-      const revocation = admin.query(test.sql, [target]);
-      release.resolve();
-      expect((await pending).snapshot.phase).toBe("MASTERED");
-      await revocation;
+      const revoke = await admin.connect();
+      const revokePid = (await revoke.query("SELECT pg_backend_pid() AS id"))
+        .rows[0].id;
+      const revocation = revoke.query(test.sql, [target]);
+      try {
+        await vi.waitFor(
+          async () => {
+            const blocked = await admin.query(
+              "SELECT cardinality(pg_blocking_pids($1)) > 0 AS blocked",
+              [revokePid]
+            );
+            expect(blocked.rows[0].blocked).toBe(true);
+          },
+          { interval: 10, timeout: 2000 }
+        );
+        release.resolve();
+        expect((await pending).snapshot.phase).toBe("MASTERED");
+      } finally {
+        release.resolve();
+        await revocation;
+        revoke.release();
+      }
       await expect(handler(runtime, f).execute(finalInput(f))).rejects.toThrow(
         test.error
       );
