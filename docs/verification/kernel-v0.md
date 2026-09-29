@@ -3,6 +3,10 @@
 Date: 2026-09-29. Base: `702a320a6981b7b2fb541de1e1e3925758541ac2`.
 Branch: `feat/kernel-v0`.
 
+This report describes the original in-memory slice. The later application and
+PostgreSQL candidate is recorded separately in `kernel-persistence-v0.md` (PR #2);
+its verification does not retroactively change the historical results below.
+
 Follow-up (2026-09-30): `docs/verification/kernel-v0-review.md` records two
 reproduced/fixed idempotency defects and the expanded 99-test suite. The initial
 implementation evidence below remains historical. Current CI results are linked

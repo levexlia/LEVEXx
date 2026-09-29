@@ -1,0 +1,77 @@
+Verified code head: 5fac4d95f4d9eee29ace27a03ae6f6ae54c7bb73
+
+PR CI: https://github.com/levexlia/LEVEXx/actions/runs/36639684368
+
+Push CI: https://github.com/levexlia/LEVEXx/actions/runs/36639678691
+
+Both Gate 0 CI runs: success
+
+Integration log job: 109648757291
+
+2026-09-29T22:27:54.7634652Z node: v24.21.0
+
+2026-09-29T22:27:54.7635485Z npm: 11.19.0
+
+2026-09-29T22:28:25.7383407Z  waiting for server to start....2026-09-29 22:27:48.062 UTC [53] LOG:  starting PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+
+2026-09-29T22:28:25.7398867Z  2026-09-29 22:27:48.383 UTC [1] LOG:  starting PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+
+2026-09-29T22:28:08.2050269Z ##[group]Run npm run test:unit
+2026-09-29T22:28:08.2050792Z npm run test:unit
+2026-09-29T22:28:08.2129255Z shell: /usr/bin/bash -e {0}
+2026-09-29T22:28:08.2129525Z env:
+2026-09-29T22:28:08.2129991Z   DATABASE_URL: ***localhost:5432/levex
+2026-09-29T22:28:08.2130283Z ##[endgroup]
+2026-09-29T22:28:08.3224655Z
+2026-09-29T22:28:08.3225906Z > @levex/levexx@0.0.0 test:unit
+2026-09-29T22:28:08.3226536Z > vitest run tests/unit
+2026-09-29T22:28:08.3226813Z
+2026-09-29T22:28:08.6106148Z
+2026-09-29T22:28:08.6158441Z  RUN  v5.0.0 /home/runner/work/LEVEXx/LEVEXx
+2026-09-29T22:28:08.6159907Z
+2026-09-29T22:28:08.9947426Z  ✓ tests/unit/kernel-invariants.test.ts (37 tests) 58ms
+2026-09-29T22:28:09.0069658Z  ✓ tests/unit/kernel-restore.test.ts (15 tests) 67ms
+2026-09-29T22:28:09.0216245Z  ✓ tests/unit/kernel.test.ts (44 tests) 77ms
+2026-09-29T22:28:09.2303741Z  ✓ tests/unit/application-command.test.ts (4 tests) 13ms
+2026-09-29T22:28:09.3957680Z  ✓ tests/unit/health.test.ts (1 test) 110ms
+2026-09-29T22:28:15.1788979Z  ✓ tests/unit/architecture.test.ts (22 tests) 6011ms
+2026-09-29T22:28:15.1790518Z    ✓ application dependency boundary (5)
+2026-09-29T22:28:15.1791859Z      ✓ permits application-to-domain imports 317ms
+2026-09-29T22:28:15.1853075Z
+2026-09-29T22:28:15.1857740Z  Test Files  6 passed (6)
+2026-09-29T22:28:15.1859046Z       Tests  123 passed (123)
+2026-09-29T22:28:15.1859937Z    Start at  22:28:08
+2026-09-29T22:28:15.1864585Z    Duration  6.56s (tests 91%, transform 5%, import 4%)
+2026-09-29T22:28:15.1880924Z
+
+2026-09-29T22:28:15.5484076Z ##[group]Run npm run test:integration
+2026-09-29T22:28:15.5484422Z npm run test:integration
+2026-09-29T22:28:15.5546905Z shell: /usr/bin/bash -e {0}
+2026-09-29T22:28:15.5547184Z env:
+2026-09-29T22:28:15.5547614Z   DATABASE_URL: ***localhost:5432/levex
+2026-09-29T22:28:15.5547916Z ##[endgroup]
+2026-09-29T22:28:15.6587326Z
+2026-09-29T22:28:15.6587940Z > @levex/levexx@0.0.0 test:integration
+2026-09-29T22:28:15.6588546Z > vitest run tests/integration
+2026-09-29T22:28:15.6588770Z
+2026-09-29T22:28:15.9526346Z
+2026-09-29T22:28:15.9566293Z  RUN  v5.0.0 /home/runner/work/LEVEXx/LEVEXx
+2026-09-29T22:28:15.9566713Z
+2026-09-29T22:28:16.2228872Z  ✓ tests/integration/db-integration.test.ts (1 test) 38ms
+2026-09-29T22:28:22.1240685Z  ✓ tests/integration/kernel-persistence.test.ts (34 tests) 5825ms
+2026-09-29T22:28:22.1242400Z    ✓ durable kernel workflow (5)
+2026-09-29T22:28:22.1244297Z      ✓ persists the full loop and replays from a separate Node process with new connections 1742ms
+2026-09-29T22:28:22.1245423Z    ✓ authorization, policy and RLS (10)
+2026-09-29T22:28:22.1246200Z      ✓ rolls back writes if consent expires after domain execution but before commit 2074ms
+2026-09-29T22:28:22.1266003Z
+2026-09-29T22:28:22.1269943Z  Test Files  2 passed (2)
+2026-09-29T22:28:22.1271086Z       Tests  35 passed (35)
+2026-09-29T22:28:22.1271752Z    Start at  22:28:15
+2026-09-29T22:28:22.1274519Z    Duration  6.16s (tests 95%, transform 3%, import 1%)
+2026-09-29T22:28:22.1288221Z
+
+Separate AI scan: https://github.com/levexlia/LEVEXx/actions/runs/36639685400
+
+AI job 109648765365: failure; CAPIError: 400 The requested model is not supported.
+
+No independent security review or acceptance is inferred.
