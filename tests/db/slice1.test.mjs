@@ -385,7 +385,7 @@ test("ROLE-001 + identity/FK/CHECK invariants: canonical provisioning fixture", 
       c,
       "DELETE FROM levex.actors WHERE id=$1",
       [ids.a],
-      "23503"
+      "23001" // PostgreSQL 18 RESTRICT violation; missing parent remains 23503.
     );
   }));
 test("TRIGGER-006: both session and effective migration identity required", () =>
@@ -525,17 +525,36 @@ test("P03-F-004: real migration runner failure rolls back schema and ledger; ret
       candidate,
       `exports.up=p=>{p.sql("SET LOCAL ROLE db_owner; CREATE TABLE levex.failure_probe(id integer); DROP TABLE levex.failure_probe; RESET ROLE;")};`
     );
-    assert.equal(
-      (
-        await runner({
-          ...migrationOptions,
-          dir,
-          databaseUrl: urlFor("migrator"),
-        })
-      ).length,
-      1
+    // A corrected deployment starts a fresh process. Reusing this process would
+    // replay Node's cached CJS fixture rather than load the corrected file.
+    execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `import { runner } from 'node-pg-migrate';
+         const applied = await runner({
+           dir: process.env.RECOVERY_MIGRATIONS_DIR,
+           databaseUrl: process.env.DATABASE_URL,
+           migrationsTable: 'pgmigrations', direction: 'up', count: Infinity
+         });
+         if (applied.length !== 1) throw new Error('EXPECTED_ONE_RECOVERY_MIGRATION');`,
+      ],
+      {
+        env: {
+          ...process.env,
+          DATABASE_URL: urlFor("migrator"),
+          RECOVERY_MIGRATIONS_DIR: dir,
+        },
+        stdio: "pipe",
+      }
     );
     assert.deepEqual(await catalog(), before);
+    assert.equal(
+      (await admin.query("SELECT count(*)::int AS n FROM public.pgmigrations"))
+        .rows[0].n,
+      5
+    );
     // Test-only completed probe ledger entry, not a shipped migration.
     await clients.migrator.query(
       "DELETE FROM public.pgmigrations WHERE name='1790000000004_test-failure'"
