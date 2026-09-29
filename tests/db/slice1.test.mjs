@@ -7,6 +7,7 @@ import { runner } from "node-pg-migrate";
 import {
   assertVersion,
   connect,
+  identifier,
   required,
   tables,
 } from "../../scripts/db/common.mjs";
@@ -213,6 +214,115 @@ test("DBROLE-001..008 + TRIGGER-004: runtime privilege and escalation attempts",
       "SET session_replication_role = replica",
     ])
       await denied(c, sql);
+  }
+});
+test("DBROLE-009: inventory rejects incoming membership from outside canonical roles", async () => {
+  const adminName = (await admin.query("SELECT session_user AS name")).rows[0]
+    .name;
+  for (const role of [
+    "db_owner",
+    "migrator",
+    "app_runtime",
+    "worker_runtime",
+  ]) {
+    await admin.query("BEGIN");
+    try {
+      // Existing ephemeral CI administrator is the outsider; no fifth role is created.
+      await admin.query(
+        `GRANT ${identifier(role)} TO ${identifier(adminName)}`
+      );
+      await assert.rejects(
+        inspectRoles(admin),
+        /Unexpected canonical role membership/
+      );
+    } finally {
+      await admin.query("ROLLBACK");
+    }
+  }
+  await inspectRoles(admin);
+});
+test("DBROLE-010: provisioning rejects incoming memberships without silently removing them", async () => {
+  const adminName = (await admin.query("SELECT session_user AS name")).rows[0]
+    .name;
+  for (const role of [
+    "db_owner",
+    "migrator",
+    "app_runtime",
+    "worker_runtime",
+  ]) {
+    await admin.query(`GRANT ${identifier(role)} TO ${identifier(adminName)}`);
+    try {
+      await assert.rejects(
+        provision(admin, passwords),
+        /Unexpected canonical role membership/
+      );
+      assert.equal(
+        (
+          await admin.query(
+            `SELECT count(*)::int AS n FROM pg_auth_members m
+         JOIN pg_roles member ON member.oid=m.member JOIN pg_roles parent ON parent.oid=m.roleid
+         WHERE member.rolname=$1 AND parent.rolname=$2`,
+            [adminName, role]
+          )
+        ).rows[0].n,
+        1
+      );
+    } finally {
+      await admin.query(
+        `REVOKE ${identifier(role)} FROM ${identifier(adminName)}`
+      );
+    }
+  }
+  await inspectRoles(admin);
+});
+test("DBROLE-011: provisioning rejects unsafe existing membership options without repair", async () => {
+  const canonical = "ADMIN FALSE, INHERIT FALSE, SET TRUE";
+  for (const options of [
+    "ADMIN TRUE, INHERIT FALSE, SET TRUE",
+    "ADMIN FALSE, INHERIT TRUE, SET TRUE",
+    "ADMIN FALSE, INHERIT FALSE, SET FALSE",
+  ]) {
+    await admin.query(`GRANT db_owner TO migrator WITH ${options}`);
+    try {
+      const before = (
+        await admin.query(
+          "SELECT admin_option,inherit_option,set_option FROM pg_auth_members WHERE member='migrator'::regrole AND roleid='db_owner'::regrole"
+        )
+      ).rows;
+      await assert.rejects(
+        provision(admin, passwords),
+        /Unexpected canonical role membership/
+      );
+      assert.deepEqual(
+        (
+          await admin.query(
+            "SELECT admin_option,inherit_option,set_option FROM pg_auth_members WHERE member='migrator'::regrole AND roleid='db_owner'::regrole"
+          )
+        ).rows,
+        before
+      );
+    } finally {
+      await admin.query(`GRANT db_owner TO migrator WITH ${canonical}`);
+    }
+  }
+  await inspectRoles(admin);
+});
+test("DBROLE-012: safe provisioning rerun preserves schema, roles and login credentials", async () => {
+  const before = await inspectRoles(admin);
+  const schema = await catalog();
+  await provision(admin, passwords);
+  assert.deepEqual(await inspectRoles(admin), before);
+  assert.deepEqual(await catalog(), schema);
+  for (const role of Object.keys(passwords)) {
+    const c = await connect(urlFor(role));
+    try {
+      assert.equal(
+        (await c.query("SELECT session_user AS name")).rows[0].name,
+        role
+      );
+    } finally {
+      await c.end();
+    }
   }
 });
 test("TRIGGER-001/005: exact function and trigger inventory", async () => {
