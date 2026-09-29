@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-29T20:26:41.988093+00:00",
+  "baselineCommit": "702a320a6981b7b2fb541de1e1e3925758541ac2",
+  "branch": "feat/kernel-v0",
+  "scope": "local in-memory domain validation; not production acceptance",
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "checks": [
+    {
+      "command": "npm run format:check",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run architecture:check",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  ],
+  "unitTests": {
+    "passed": 97,
+    "files": 4
+  },
+  "compiledSmoke": "PASS; MASTERED / physics-foundations",
+  "databaseIntegration": "NOT RUN locally; no PostgreSQL service; no persistence changes",
+  "remoteCI": "PENDING at publication; write access restored and source upload verified on 2026-09-30 Asia/Jerusalem",
+  "sources": [
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "3dadfd3f8e1a4a60bbe934ab058c555cf350961b8b46e357ee39cd53af472f5e"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "7c5fce443f40f75f83dcf425866e30a9f7d2d9fd75339b392906f47c70f08e80"
+    },
+    {
+      "path": "package.json",
+      "sha256": "07469ff8e960f09ed8ac4dfe8c9ec8c86a08b31acc90cf5724141d56993d8867"
+    },
+    {
+      "path": "packages/domain/artifacts/artifact.ts",
+      "sha256": "81740aac75960302de3293c9d998cfaaa43f726e02b813e9ee5a78bb41dea5e5"
+    },
+    {
+      "path": "packages/domain/evaluations/evaluation.ts",
+      "sha256": "e98a8c9e18cf03102b502e976c6abb0a7c1584d1b22bfe39d457e3d4bd733926"
+    },
+    {
+      "path": "packages/domain/evidence/evidence.ts",
+      "sha256": "6f64f7bc28da4ff2d9c2c2048a1b34e3180c04c224b983a98a7ec11a13bb7b24"
+    },
+    {
+      "path": "packages/domain/index.ts",
+      "sha256": "c9c6e753eb8dca5f17148601daa18e5c32d952a3800c125da70cd70fddcc1775"
+    },
+    {
+      "path": "packages/domain/mastery/mastery.ts",
+      "sha256": "1866a0159683a4242b6385bce3021133d36e5f094f10864f881d8d53837f6e2b"
+    },
+    {
+      "path": "packages/domain/progression/progression.ts",
+      "sha256": "57cf00e859b7829d0117c863d8002ea1839538049444cdaa2742b91fc31fb37c"
+    },
+    {
+      "path": "packages/domain/quests/commands.ts",
+      "sha256": "250736b084bb44e6470d2519eace817d7a645e95c14b9906dc85759a2606bd7a"
+    },
+    {
+      "path": "packages/domain/quests/first-machine.ts",
+      "sha256": "2df891cac8420ec2d32efd2241ddb8099e9ee8ed2c7cdf2f26669727d1ccff3b"
+    },
+    {
+      "path": "packages/domain/quests/quest-attempt.ts",
+      "sha256": "416cb35f6d9690fd8aec48205bac4b00c7600b7a66c9642aac1479a031bcd87e"
+    },
+    {
+      "path": "packages/domain/quests/quest.ts",
+      "sha256": "ce9d501feb53ef7cfb7852669fa79c48232788d61bac77cb7065fd7a3ea307ad"
+    },
+    {
+      "path": "packages/domain/quests/state.ts",
+      "sha256": "7328ddc585d041f6097bb525feb478cf81bc206ed2988c4c343d14f6ca1a2789"
+    },
+    {
+      "path": "packages/domain/quests/transition.ts",
+      "sha256": "26e4ed71ae8d81bc906e130d7edee13e887a07e136b87465a88b0cbcc1672c1b"
+    },
+    {
+      "path": "packages/domain/rubrics/rubric.ts",
+      "sha256": "89536e7db4f459518ac526e05957f959955b9476d383023eac63834d3706cda2"
+    },
+    {
+      "path": "packages/domain/shared/events.ts",
+      "sha256": "2738a091050e992ad6cfa98ea7be9d728476efcac0f682ff6188f11a30caf2e6"
+    },
+    {
+      "path": "packages/domain/shared/invariants.ts",
+      "sha256": "f0d8e1db08d865fba096de7c7523525028770222f37df0b4df48a95709e1db25"
+    },
+    {
+      "path": "packages/domain/shared/policy.ts",
+      "sha256": "8241fd9773dff66032aa439d14e81d460cf218f390ff2ac2cc0d788b13b8fe83"
+    },
+    {
+      "path": "scripts/verify-architecture.mjs",
+      "sha256": "0ee16dddffcde8fc1647953d450bcd72ad6d45956a6ace427da818b2083cf6f8"
+    },
+    {
+      "path": "tests/unit/architecture.test.ts",
+      "sha256": "e1b80cec4ddf1eb18b616980e680b6706e59aa62f87a187c432f5691b7463c20"
+    },
+    {
+      "path": "tests/unit/health.test.ts",
+      "sha256": "b3029cb9d7fdf58f1916a7fb0cb2bac3135505018fbe11b408d5a7c10ca86456"
+    },
+    {
+      "path": "tests/unit/kernel-fixtures.ts",
+      "sha256": "5922a168d47f612f806359fb1f5c31bd9e54e9b1e9b97b3b5404c87a695caab6"
+    },
+    {
+      "path": "tests/unit/kernel-invariants.test.ts",
+      "sha256": "a65bdfe6f3c13e49c8a64c80826a6c0c44b0dfa7992784493047eca639540d60"
+    },
+    {
+      "path": "tests/unit/kernel.test.ts",
+      "sha256": "87dcaaf13f27c46f6512e9c7e0db551f3f35827af4c9329d89ef8dd13d5ff5ec"
+    },
+    {
+      "path": "tsconfig.domain.json",
+      "sha256": "9b453df3242c273f5da62d04439c9e316c9f263fc90cde891bdc2cc6766a90cd"
+    },
+    {
+      "path": "tsconfig.tests.json",
+      "sha256": "cc6f7e5ce5335c806959f42152b753714ce8fa9d25be912d3a133919769e75bf"
+    }
+  ]
+}
