@@ -21,10 +21,13 @@
     "build": "tsc -p tsconfig.build.json",
     "start:api": "node -r ts-node/register apps/api/src/index.ts",
     "start:worker": "node -r ts-node/register apps/worker/src/index.ts",
-    "db:migrate": "node-pg-migrate up -m packages/infrastructure/database/migrations",
+    "db:migrate": "node scripts/db/migrate.mjs",
     "db:migrate:down": "node-pg-migrate down -m packages/infrastructure/database/migrations",
     "ci": "npm ci && npm run format:check && npm run lint && npm run typecheck && npm run test",
-    "architecture:check": "node scripts/verify-architecture.mjs"
+    "architecture:check": "node scripts/verify-architecture.mjs",
+    "db:provision": "node scripts/db/provision-roles.mjs",
+    "db:verify-roles": "node scripts/db/verify-runtime-roles.mjs",
+    "test:db-authz": "node --test --test-concurrency=1 tests/db/slice1.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
