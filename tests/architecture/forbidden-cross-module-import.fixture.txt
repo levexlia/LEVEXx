@@ -1,0 +1,6 @@
+// virtual-path: packages/modules/identity/domain/forbidden-fixture.ts
+// This file is intentionally invalid and is not compiled. The architecture
+// regression command must prove that domain -> shared infrastructure is rejected.
+import { forbidden } from "../../../infrastructure/database/src/index.js";
+
+void forbidden;
