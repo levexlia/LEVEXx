@@ -1,0 +1,35 @@
+name: Format review closure once
+
+on:
+  push:
+    branches:
+      - feat/p02-p03-slice1-a1
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: feat/p02-p03-slice1-a1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24.21.0"
+          cache: npm
+      - run: npm install --global npm@11.19.0
+      - run: npm ci
+      - name: Format closure evidence
+        run: |
+          npx prettier --write docs/platform/P0.2-P0.3-current-track.md docs/platform/P0.2-P0.3-slice1-review-handoff.md
+      - name: Commit formatted evidence and remove this workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/platform/P0.2-P0.3-current-track.md docs/platform/P0.2-P0.3-slice1-review-handoff.md
+          git rm .github/workflows/format-review-closure-once.yml
+          git commit -m "chore: format review closure evidence"
+          git push origin HEAD:feat/p02-p03-slice1-a1
