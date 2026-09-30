@@ -120,6 +120,9 @@ before(async () => {
     env: { ...process.env, DATABASE_URL: urlFor("migrator") },
     stdio: "pipe",
   });
+  // D-F01 disposable proof: fail immediately if the intentional privilege
+  // regression survived migration.
+  await inspectRoles(admin);
 });
 after(async () => {
   if (admin) {
