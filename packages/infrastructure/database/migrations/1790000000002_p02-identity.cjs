@@ -50,6 +50,11 @@ exports.up = (pgm) => {
     ALTER TABLE levex.actors FORCE ROW LEVEL SECURITY;
     ALTER TABLE levex.accounts ENABLE ROW LEVEL SECURITY;
     ALTER TABLE levex.accounts FORCE ROW LEVEL SECURITY;
+
+    -- INTENTIONAL D-F01 REGRESSION PROOF ONLY:
+    -- This forbidden premature runtime grant must make ci / db-authz fail.
+    GRANT SELECT ON levex.accounts TO app_runtime;
+
     RESET ROLE;
   `);
 };
