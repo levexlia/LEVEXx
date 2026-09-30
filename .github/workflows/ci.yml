@@ -24,6 +24,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run architecture:check
+      - run: npm run architecture:regression
   unit:
     name: ci / unit
     runs-on: ubuntu-latest
