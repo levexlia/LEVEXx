@@ -120,6 +120,15 @@ before(async () => {
     env: { ...process.env, DATABASE_URL: urlFor("migrator") },
     stdio: "pipe",
   });
+  // D-F01 disposable proof guard: fail immediately if the intentional
+  // FORCE RLS regression reached the migrated schema. This assertion is
+  // proof-branch-only and is never merged into canonical code.
+  const forceRls = (
+    await admin.query(
+      "SELECT relforcerowsecurity FROM pg_class WHERE oid='levex.accounts'::regclass"
+    )
+  ).rows[0]?.relforcerowsecurity;
+  assert.equal(forceRls, true, "D_F01_FORCE_RLS_REGRESSION_DETECTED");
 });
 after(async () => {
   if (admin) {
