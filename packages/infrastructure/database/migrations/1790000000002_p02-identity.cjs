@@ -50,6 +50,8 @@ exports.up = (pgm) => {
     ALTER TABLE levex.actors FORCE ROW LEVEL SECURITY;
     ALTER TABLE levex.accounts ENABLE ROW LEVEL SECURITY;
     ALTER TABLE levex.accounts FORCE ROW LEVEL SECURITY;
+    -- INTENTIONAL D-F01 PROOF ONLY: this must make ci / db-authz fail.
+    ALTER TABLE levex.accounts NO FORCE ROW LEVEL SECURITY;
     RESET ROLE;
   `);
 };
