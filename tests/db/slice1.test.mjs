@@ -121,8 +121,18 @@ before(async () => {
     stdio: "pipe",
   });
   // D-F01 disposable proof: fail immediately if the intentional privilege
-  // regression survived migration.
-  await inspectRoles(admin);
+  // regression survived migration, but close clients first so the proof run
+  // terminates deterministically instead of waiting for the job timeout.
+  try {
+    await inspectRoles(admin);
+  } catch (error) {
+    await Promise.all(
+      [...Object.values(clients), admin].filter(Boolean).map((client) => client.end())
+    );
+    for (const key of Object.keys(clients)) delete clients[key];
+    admin = undefined;
+    throw error;
+  }
 });
 after(async () => {
   if (admin) {
