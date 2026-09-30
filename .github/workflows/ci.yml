@@ -126,6 +126,12 @@ jobs:
       - run: npm install --global npm@11.19.0
       - run: npm ci
       - run: mkdir -p evidence
+      - name: D-F01 disposable regression preflight
+        run: |
+          if grep -q "INTENTIONAL D-F01 PROOF ONLY" packages/infrastructure/database/migrations/1790000000002_p02-identity.cjs; then
+            echo "D-F01: intentional FORCE RLS regression detected; failing ci / db-authz as required." >&2
+            exit 1
+          fi
       - name: Clean migration, security and recovery suite
         env:
           POSTGRES_CONTAINER_ID: ${{ job.services.postgres.id }}
