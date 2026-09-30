@@ -61,7 +61,9 @@ function importSpecifiers(source) {
 
 function internalTarget(fromFile, specifier) {
   if (!specifier.startsWith(".")) return null;
-  return path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), specifier));
+  return path.posix.normalize(
+    path.posix.join(path.posix.dirname(fromFile), specifier)
+  );
 }
 
 function moduleInfo(file) {
@@ -83,7 +85,10 @@ function validateDependency(fromFile, specifier) {
   const sourceModule = moduleInfo(fromFile);
   const targetModule = moduleInfo(target);
 
-  if (targetModule && (!sourceModule || sourceModule.name !== targetModule.name)) {
+  if (
+    targetModule &&
+    (!sourceModule || sourceModule.name !== targetModule.name)
+  ) {
     if (!isModulePublicApi(target, targetModule.name)) {
       throw new ArchitectureBoundaryError(
         `${fromFile} deep-imports module ${targetModule.name} via ${specifier}; use its index.ts public API`
@@ -124,7 +129,10 @@ function validateDependency(fromFile, specifier) {
     }
   }
 
-  if (fromFile.startsWith("packages/infrastructure/") && target.startsWith("apps/")) {
+  if (
+    fromFile.startsWith("packages/infrastructure/") &&
+    target.startsWith("apps/")
+  ) {
     throw new ArchitectureBoundaryError(
       `${fromFile} shared infrastructure imports an app composition root via ${specifier}`
     );
@@ -148,7 +156,8 @@ function validateRepository() {
 function runRegressionFixture(fixturePath) {
   const source = fs.readFileSync(fixturePath, "utf8");
   const match = source.match(/^\/\/\s*virtual-path:\s*(\S+)\s*$/m);
-  if (!match) throw new Error("Architecture regression fixture missing virtual-path");
+  if (!match)
+    throw new Error("Architecture regression fixture missing virtual-path");
   try {
     validateSource(match[1], source);
   } catch (error) {
